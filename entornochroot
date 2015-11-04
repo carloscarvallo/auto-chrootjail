@@ -1,0 +1,31 @@
+#! /bin/bash
+# Paquetes que se necesitan
+mkdir ~/Distrowork
+mkdir ~/Distrowork/
+mkdir ~/Distrowork/backupISO
+mkdir ~/Distrowork/backupISO/mnt
+mkdir ~/Distrowork/backupISO/extraer-cd
+mkdir ~/Distrowork/backupISO/squashfs
+mkdir ~/Distrowork/backupISO/edit
+#ubuntu cd like example (very old version by the way)
+sudo cp ~/ubuntu-10.04.3-desktop-i386.iso ~/Distrowork/
+sleep 60s
+cd ~/Distrowork/
+NOM_IMAGE="ubuntu-10.04.3-desktop-i386.iso"
+export WORK=~/Distrowork/backupISO
+echo ${WORK}
+cd ${WORK}
+sudo mount -o loop ../$NOM_IMAGE mnt
+rsync --exclude=/casper/filesystem.squashfs -a mnt/ extraer-cd
+sleep 60s
+sudo mount -t squashfs -o loop mnt/casper/filesystem.squashfs squashfs
+sleep 60s
+sudo cp -a squashfs/* edit/
+sudo cp /etc/resolv.conf ${WORK}/edit/etc
+sudo cp /etc/hosts ${WORK}/edit/etc
+sudo /etc/init.d/networking restart
+sleep 5s
+sudo mount --bind /dev/ ${WORK}/edit/dev
+sudo mount -t proc proc ${WORK}/edit/proc
+sudo mount -t sysfs sysfs ${WORK}/edit/sys
+sudo mount -t devpts devpts ${WORK}/edit/dev/pts

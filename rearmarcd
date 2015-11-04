@@ -1,0 +1,19 @@
+#! /bin/bash
+# script para armar el iso de la distro creada
+export WORK=~/Distrowork/backupISO
+sudo umount ${WORK}/edit/proc
+sudo umount ${WORK}/edit/sys
+sudo umount ${WORK}/edit/dev/pts
+sudo umount ${WORK}/edit/dev
+sleep 10s
+echo regen manifs
+chmod +w ${WORK}/extraer-cd/casper/filesystem.manifest
+sudo chroot ${WORK}/edit dpkg-query -W --showformat='${Package} ${Version}\n' > ${WORK}/extraer-cd/casper/filesystem.manifest
+sudo cp ${WORK}/extraer-cd/casper/filesystem.manifest ${WORK}/extraer-cd/casper/filesystem.manifest-desktop
+sudo sed -i '/ubiquity/d' ${WORK}/extraer-cd/casper/filesystem.manifest-desktop
+sudo rm ${WORK}/extraer-cd/casper/filesystem.squashfs
+sudo mksquashfs ${WORK}/edit ${WORK}/extraer-cd/casper/filesystem.squashfs
+sleep 10s
+IMAGE_NAME="MyCustomDistro"
+cd ${WORK}/extraer-cd
+sudo mkisofs -r -V "$IMAGE_NAME" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o ~/custom-distro.iso .
